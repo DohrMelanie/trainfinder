@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchJourneys } from '../../../lib/db-client';
+import { searchJourneys } from '../../../lib/hafas';
 import { analyzeJourney, sortByPrice } from '../../../lib/analyzer';
 import { Journey } from '../../../lib/types';
 

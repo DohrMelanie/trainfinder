@@ -10,12 +10,10 @@ const clients = [
   { name: "rmv", client: createClient(rmvProfile, "trainfinder/1.0") },
 ];
 
-export async function searchStationsHafas(
+export async function searchStations(
   query: string
 ): Promise<StationSuggestion[]> {
-  let lastError: Error | null = null;
-  
-  for (const { name, client } of clients) {
+  const promises = clients.map(async ({ name, client }) => {
     try {
       const results = await client.locations(query, {
         results: 6,
@@ -43,17 +41,21 @@ export async function searchStationsHafas(
         }));
     } catch (err) {
       console.warn(`[hafas] ${name} profile failed:`, (err as Error).message);
-      lastError = err as Error;
+      throw err;
     }
-  }
+  });
 
-  throw lastError || new Error("All HAFAS profiles failed");
+  try {
+    return await Promise.any(promises);
+  } catch (err) {
+    throw new Error("All HAFAS profiles failed");
+  }
 }
 
-export async function searchJourneysHafas(
+export async function searchJourneys(
   fromId: string,
   toId: string,
-  options: { departure?: string; results?: number } = {}
+  options: { departure?: string; results?: number; deutschlandTicketOnly?: boolean } = {}
 ): Promise<Journey[]> {
   const hafasOpts: Record<string, unknown> = {
     results: options.results ?? 5,
@@ -65,9 +67,7 @@ export async function searchJourneysHafas(
     hafasOpts.departure = new Date(options.departure);
   }
 
-  let lastError: Error | null = null;
-
-  for (const { name, client } of clients) {
+  const promises = clients.map(async ({ name, client }) => {
     try {
       const data = await client.journeys(fromId, toId, hafasOpts);
 
@@ -105,11 +105,15 @@ export async function searchJourneysHafas(
       }));
     } catch (err) {
       console.warn(`[hafas] ${name} profile failed:`, (err as Error).message);
-      lastError = err as Error;
+      throw err;
     }
-  }
+  });
 
-  throw lastError || new Error("All HAFAS profiles failed");
+  try {
+    return await Promise.any(promises);
+  } catch (err) {
+    throw new Error("All HAFAS profiles failed");
+  }
 }
 
 function mapStation(raw: unknown): Station {

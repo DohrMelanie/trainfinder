@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchStations } from '../../../lib/db-client';
+import { searchStations } from '../../../lib/hafas';
 
 export async function GET(request: Request) {
   try {

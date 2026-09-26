@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StationInput from './StationInput';
 import RouteResults from './RouteResults';
 import type { AnalyzedJourney, StationSuggestion } from '@/lib/types';
@@ -9,10 +9,15 @@ export default function SearchPage() {
   const [from, setFrom] = useState<StationSuggestion | null>(null);
   const [to, setTo] = useState<StationSuggestion | null>(null);
   const [date, setDate] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<AnalyzedJourney[] | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSwap = () => {
     setFrom(to);
@@ -90,7 +95,7 @@ export default function SearchPage() {
             <button 
               type="submit" 
               className="submit-btn" 
-              disabled={loading || !from || !to || !date}
+              disabled={!mounted ? false : (loading || !from || !to || !date)}
               style={{ width: '100%' }}
             >
               {loading ? (
