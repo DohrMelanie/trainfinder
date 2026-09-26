@@ -1,54 +1,40 @@
 import { createClient } from "hafas-client";
-import { profile as dbProfile } from "hafas-client/p/db/index.js";
 import { profile as oebbProfile } from "hafas-client/p/oebb/index.js";
-import { profile as rmvProfile } from "hafas-client/p/rmv/index.js";
 import { Station, Journey, StationSuggestion } from "./types";
 
-const clients = [
-  { name: "oebb", client: createClient(oebbProfile, "trainfinder/1.0") },
-  { name: "db", client: createClient(dbProfile, "trainfinder/1.0") },
-  { name: "rmv", client: createClient(rmvProfile, "trainfinder/1.0") },
-];
+const oebbClient = createClient(oebbProfile, "trainfinder/1.0");
 
 export async function searchStations(
   query: string
 ): Promise<StationSuggestion[]> {
-  const promises = clients.map(async ({ name, client }) => {
-    try {
-      const results = await client.locations(query, {
-        results: 6,
-        fuzzy: true,
-        stops: true,
-        poi: false,
-        addresses: false,
-      });
-
-      console.log(`[hafas] ${name} profile succeeded for stations`);
-
-      return results
-        .filter(
-          (s) =>
-            (s.type === "stop" || s.type === "station") &&
-            typeof s.id === "string" &&
-            typeof s.name === "string"
-        )
-        .map((s) => ({
-          id: s.id!,
-          name: s.name!,
-          location: s.location
-            ? { latitude: s.location.latitude!, longitude: s.location.longitude! }
-            : undefined,
-        }));
-    } catch (err) {
-      console.warn(`[hafas] ${name} profile failed:`, (err as Error).message);
-      throw err;
-    }
-  });
-
   try {
-    return await Promise.any(promises);
+    const results = await oebbClient.locations(query, {
+      results: 6,
+      fuzzy: true,
+      stops: true,
+      poi: false,
+      addresses: false,
+    });
+
+    console.log(`[hafas] oebb profile succeeded for stations`);
+
+    return results
+      .filter(
+        (s) =>
+          (s.type === "stop" || s.type === "station") &&
+          typeof s.id === "string" &&
+          typeof s.name === "string"
+      )
+      .map((s) => ({
+        id: s.id!,
+        name: s.name!,
+        location: s.location
+          ? { latitude: s.location.latitude!, longitude: s.location.longitude! }
+          : undefined,
+      }));
   } catch (err) {
-    throw new Error("All HAFAS profiles failed");
+    console.warn(`[hafas] oebb profile failed:`, (err as Error).message);
+    throw new Error("OEBB HAFAS profile failed to fetch stations");
   }
 }
 
@@ -67,52 +53,44 @@ export async function searchJourneys(
     hafasOpts.departure = new Date(options.departure);
   }
 
-  const promises = clients.map(async ({ name, client }) => {
-    try {
-      const data = await client.journeys(fromId, toId, hafasOpts);
-
-      console.log(`[hafas] ${name} profile succeeded for journeys`);
-      if (!data.journeys) return [];
-
-      return data.journeys.map((j, i) => ({
-        id: `journey-${i}-${Date.now()}`,
-        legs: Array.isArray(j.legs)
-          ? j.legs.map((leg) => ({
-              origin: mapStation(leg.origin),
-              destination: mapStation(leg.destination),
-              departure: (leg.departure as string) ?? "",
-              arrival: (leg.arrival as string) ?? "",
-              line: leg.line
-                ? {
-                    name: leg.line.name ?? "",
-                    productName: leg.line.productName ?? "",
-                    product: leg.line.product ?? "",
-                    operator: leg.line.operator
-                      ? { name: leg.line.operator.name ?? "" }
-                      : undefined,
-                  }
-                : undefined,
-              direction: leg.direction ?? undefined,
-              walking: leg.walking === true,
-            }))
-          : [],
-        price: j.price
-          ? {
-              amount: j.price.amount as number,
-              currency: (j.price.currency as string) ?? "EUR",
-            }
-          : undefined,
-      }));
-    } catch (err) {
-      console.warn(`[hafas] ${name} profile failed:`, (err as Error).message);
-      throw err;
-    }
-  });
-
   try {
-    return await Promise.any(promises);
+    const data = await oebbClient.journeys(fromId, toId, hafasOpts);
+
+    console.log(`[hafas] oebb profile succeeded for journeys`);
+    if (!data.journeys) return [];
+
+    return data.journeys.map((j, i) => ({
+      id: `journey-${i}-${Date.now()}`,
+      legs: Array.isArray(j.legs)
+        ? j.legs.map((leg) => ({
+            origin: mapStation(leg.origin),
+            destination: mapStation(leg.destination),
+            departure: (leg.departure as string) ?? "",
+            arrival: (leg.arrival as string) ?? "",
+            line: leg.line
+              ? {
+                  name: leg.line.name ?? "",
+                  productName: leg.line.productName ?? "",
+                  product: leg.line.product ?? "",
+                  operator: leg.line.operator
+                    ? { name: leg.line.operator.name ?? "" }
+                    : undefined,
+                }
+              : undefined,
+            direction: leg.direction ?? undefined,
+            walking: leg.walking === true,
+          }))
+        : [],
+      price: j.price
+        ? {
+            amount: j.price.amount as number,
+            currency: (j.price.currency as string) ?? "EUR",
+          }
+        : undefined,
+    }));
   } catch (err) {
-    throw new Error("All HAFAS profiles failed");
+    console.warn(`[hafas] oebb profile failed:`, (err as Error).message);
+    throw new Error("OEBB HAFAS profile failed to fetch journeys");
   }
 }
 

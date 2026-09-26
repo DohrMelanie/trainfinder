@@ -149,6 +149,7 @@ input {
   justify-content: center;
   width: 40px;
   height: 40px;
+  margin-top: 12px;
   border-radius: 50%;
   background: var(--bg-color-glass-hover);
   border: 1px solid var(--border-color);
@@ -207,7 +208,7 @@ input {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 16px 16px 16px 48px;
+  padding: 16px 56px 16px 48px;
   color: var(--text-main);
   font-size: 1rem;
   transition: all var(--transition-fast);
@@ -262,7 +263,7 @@ input {
 }
 
 .submit-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -308,7 +309,7 @@ input {
 
 .clear-btn {
   position: absolute;
-  right: 16px;
+  right: 48px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
