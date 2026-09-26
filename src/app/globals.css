@@ -1,0 +1,568 @@
+:root {
+  --bg-color: #050508;
+  --bg-color-glass: rgba(15, 15, 20, 0.6);
+  --bg-color-glass-hover: rgba(25, 25, 30, 0.7);
+  --text-main: #f0f0f5;
+  --text-muted: #8b8b9a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(255, 255, 255, 0.3);
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #4f46e5;
+  
+  --ticket-dticket: #10b981;
+  --ticket-dticket-bg: rgba(16, 185, 129, 0.15);
+  --ticket-klimaticket: #3b82f6;
+  --ticket-klimaticket-bg: rgba(59, 130, 246, 0.15);
+  --ticket-vorteilscard: #f59e0b;
+  --ticket-vorteilscard-bg: rgba(245, 158, 11, 0.15);
+  --ticket-full: #ef4444;
+  --ticket-full-bg: rgba(239, 68, 68, 0.15);
+  --ticket-walking: #6b7280;
+  --ticket-walking-bg: rgba(107, 114, 128, 0.15);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+  
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+  background-attachment: fixed;
+  font-family: var(--font-inter), sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: var(--bg-color-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card {
+  background: var(--bg-color-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all var(--transition-normal);
+}
+
+.glass-card:hover {
+  background: var(--bg-color-glass-hover);
+  border-color: var(--border-focus);
+  transform: translateY(-2px);
+}
+
+/* Layout */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Form Styles */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 48px;
+  padding: 32px;
+  border-radius: var(--radius-xl);
+}
+
+.inputs-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .inputs-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.swap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-color-glass-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+@media (min-width: 769px) {
+  .swap-btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.swap-btn:hover {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+@media (max-width: 768px) {
+  .swap-btn:hover {
+    transform: rotate(180deg);
+  }
+}
+
+.input-group {
+  flex: 1;
+  position: relative;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.text-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 16px 16px 48px;
+  color: var(--text-main);
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.text-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.date-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.date-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  color: var(--text-main);
+  font-size: 1rem;
+  outline: none;
+  flex: 1;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background: var(--accent-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Autocomplete Dropdown */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--bg-color-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 50;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-item:hover, .dropdown-item.active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  padding: 4px;
+}
+
+.clear-btn:hover {
+  color: var(--text-main);
+}
+
+/* Results Area */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.results-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.savings-badge {
+  background: var(--ticket-dticket-bg);
+  color: var(--ticket-dticket);
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.journeys-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Journey Card */
+.journey-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.journey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.journey-times {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-row {
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.duration-info {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.journey-price {
+  text-align: right;
+}
+
+.price-current {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.price-original {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  margin-top: 2px;
+}
+
+.legs-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.leg-line {
+  height: 2px;
+  width: 20px;
+  background: var(--border-color);
+}
+
+.leg-arrow {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.expand-btn {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-top: 1px solid var(--border-color);
+  margin-top: 16px;
+  transition: color var(--transition-fast);
+}
+
+.expand-btn:hover {
+  color: var(--text-main);
+}
+
+/* Expanded Legs */
+.legs-details {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.leg-item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.leg-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid var(--bg-color);
+  z-index: 2;
+}
+
+.timeline-line {
+  flex: 1;
+  width: 2px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.leg-content {
+  flex: 1;
+  padding-bottom: 16px;
+}
+
+.leg-times {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.leg-stations {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.leg-train {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-right: 8px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-deutschlandticket {
+  color: var(--ticket-dticket);
+  background: var(--ticket-dticket-bg);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-klimaticket-ooe {
+  color: var(--ticket-klimaticket);
+  background: var(--ticket-klimaticket-bg);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-vorteilscard {
+  color: var(--ticket-vorteilscard);
+  background: var(--ticket-vorteilscard-bg);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-full-price {
+  color: var(--ticket-full);
+  background: var(--ticket-full-bg);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-walking {
+  color: var(--ticket-walking);
+  background: var(--ticket-walking-bg);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.mt-4 { margin-top: 16px; }
+.mb-8 { margin-bottom: 32px; }
+.error-text { color: var(--ticket-full); }
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+}
