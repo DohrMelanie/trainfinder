@@ -44,10 +44,20 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
         </div>
 
         <div className="journey-ticket-status">
-          {isFullyDeutschlandticket ? (
-            <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
-              ✓ 100% D-Ticket
-            </span>
+          {analyzed.isDeutschlandticketValid ? (
+            isFullyDeutschlandticket ? (
+              <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                ✓ 100% D-Ticket
+              </span>
+            ) : hasDeutschlandticket ? (
+              <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                ✓ D-Ticket (DE) + OÖ
+              </span>
+            ) : (
+              <span className="badge badge-klimaticket-ooe" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                ✓ In OÖ erlaubt
+              </span>
+            )
           ) : hasDeutschlandticket ? (
             <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
               Partially D-Ticket ({dtLegsCount}/{transitLegs.length})

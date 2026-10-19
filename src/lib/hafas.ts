@@ -53,6 +53,14 @@ export async function searchJourneys(
     hafasOpts.departure = new Date(options.departure);
   }
 
+  if (options.deutschlandTicketOnly) {
+    hafasOpts.products = {
+      nationalExpress: false,
+      national: false,
+      interregional: false,
+    };
+  }
+
   try {
     const data = await oebbClient.journeys(fromId, toId, hafasOpts);
 

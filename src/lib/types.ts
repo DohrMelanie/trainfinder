@@ -51,6 +51,7 @@ export interface AnalyzedJourney {
   analyzedLegs: AnalyzedLeg[];
   durationMinutes: number;
   transfers: number;
+  isDeutschlandticketValid: boolean;
 }
 
 export interface StationSuggestion {

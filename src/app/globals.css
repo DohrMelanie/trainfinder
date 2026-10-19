@@ -226,6 +226,12 @@ input {
   margin-top: 8px;
 }
 
+@media (max-width: 768px) {
+  .date-row {
+    flex-direction: column;
+  }
+}
+
 .date-input {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-color);
@@ -235,12 +241,73 @@ input {
   font-size: 1rem;
   outline: none;
   flex: 1;
+  width: 100%;
 }
 
 .date-input::-webkit-calendar-picker-indicator {
   filter: invert(1);
   opacity: 0.6;
   cursor: pointer;
+}
+
+.filter-row {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.925rem;
+  color: var(--text-main);
+  transition: opacity var(--transition-fast);
+}
+
+.checkbox-label:hover {
+  opacity: 0.9;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050508;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: var(--ticket-dticket);
+  border-color: var(--ticket-dticket);
+}
+
+.checkbox-input:focus-visible + .checkbox-custom {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+}
+
+.checkbox-text {
+  color: var(--text-muted);
+}
+
+.checkbox-text strong {
+  color: var(--ticket-dticket);
 }
 
 .submit-btn {
@@ -328,11 +395,64 @@ input {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .results-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .results-header h2 {
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+.results-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ticket-dticket);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.results-filter-toggle {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.filter-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.filter-chip.active {
+  color: #ffffff;
+  background: var(--accent-primary);
+  font-weight: 600;
+}
+
+.filter-chip.active:last-child {
+  background: var(--ticket-dticket);
+  color: #050508;
 }
 
 .savings-badge {

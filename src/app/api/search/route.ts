@@ -17,6 +17,8 @@ export async function GET(request: Request) {
       );
     }
 
+    const dtOnly = searchParams.get('dtOnly') === 'true';
+
     const [regularJourneys, dtJourneys] = await Promise.all([
       searchJourneys(fromId, toId, { departure }),
       searchJourneys(fromId, toId, { departure, deutschlandTicketOnly: true }),
@@ -27,7 +29,9 @@ export async function GET(request: Request) {
     const getJourneyKey = (journey: Journey) => {
       if (journey.legs.length === 0) return 'empty';
       const firstLeg = journey.legs[0];
-      return `${firstLeg.departure}-${journey.legs.length}`;
+      const lastLeg = journey.legs[journey.legs.length - 1];
+      const lines = journey.legs.map((l) => l.line?.name || 'walk').join('|');
+      return `${firstLeg.departure}-${lastLeg.arrival}-${lines}`;
     };
 
     [...regularJourneys, ...dtJourneys].forEach((journey) => {
@@ -39,7 +43,11 @@ export async function GET(request: Request) {
 
     const uniqueJourneys = Array.from(journeyMap.values());
     const analyzedJourneys = uniqueJourneys.map(analyzeJourney);
-    const sortedJourneys = sortByDeparture(analyzedJourneys);
+    let sortedJourneys = sortByDeparture(analyzedJourneys);
+
+    if (dtOnly) {
+      sortedJourneys = sortedJourneys.filter((j) => j.isDeutschlandticketValid);
+    }
 
     return NextResponse.json(sortedJourneys);
   } catch (error) {

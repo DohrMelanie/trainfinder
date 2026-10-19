@@ -9,6 +9,8 @@ export default function SearchPage() {
   const [from, setFrom] = useState<StationSuggestion | null>(null);
   const [to, setTo] = useState<StationSuggestion | null>(null);
   const [date, setDate] = useState<string>('');
+  const [time, setTime] = useState<string>('');
+  const [dtOnly, setDtOnly] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
   
   const [loading, setLoading] = useState(false);
@@ -17,6 +19,15 @@ export default function SearchPage() {
 
   useEffect(() => {
     setMounted(true);
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    setDate(`${yyyy}-${mm}-${dd}`);
+
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    setTime(`${hh}:${min}`);
   }, []);
 
   const handleSwap = () => {
@@ -32,7 +43,16 @@ export default function SearchPage() {
     setError(null);
     
     try {
-      const res = await fetch(`/api/search?from=${from.id}&to=${to.id}&departure=${date}T10:00:00.000Z`); // appending generic time for demo
+      let departureParam = '';
+      if (date) {
+        const timeStr = time || '12:00';
+        const depDate = new Date(`${date}T${timeStr}:00`);
+        if (!isNaN(depDate.getTime())) {
+          departureParam = `&departure=${encodeURIComponent(depDate.toISOString())}`;
+        }
+      }
+
+      const res = await fetch(`/api/search?from=${from.id}&to=${to.id}${departureParam}`);
       if (!res.ok) {
         throw new Error('Failed to fetch routes');
       }
@@ -90,8 +110,19 @@ export default function SearchPage() {
               required
             />
           </div>
+
+          <div className="input-group">
+            <label>Departure Time</label>
+            <input 
+              type="time" 
+              className="date-input time-input" 
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+            />
+          </div>
           
-          <div className="input-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <div className="input-group btn-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button 
               type="submit" 
               className="submit-btn" 
@@ -111,6 +142,27 @@ export default function SearchPage() {
             </button>
           </div>
         </div>
+
+        <div className="filter-row">
+          <label className="checkbox-label" title="Nur Verbindungen anzeigen, die in Deutschland ausschließlich das Deutschlandticket nutzen (in OÖ alle Züge erlaubt)">
+            <input 
+              type="checkbox" 
+              className="checkbox-input"
+              checked={dtOnly}
+              onChange={(e) => setDtOnly(e.target.checked)}
+            />
+            <span className="checkbox-custom">
+              {dtOnly && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </span>
+            <span className="checkbox-text">
+              Nur <strong>Deutschlandticket</strong> in DE (in AT / OÖ alles erlaubt)
+            </span>
+          </label>
+        </div>
       </form>
 
       {error && (
@@ -120,7 +172,11 @@ export default function SearchPage() {
       )}
 
       {results && (
-        <RouteResults journeys={results} />
+        <RouteResults 
+          journeys={results} 
+          dtOnlyFilter={dtOnly}
+          onToggleDtFilter={setDtOnly}
+        />
       )}
     </div>
   );

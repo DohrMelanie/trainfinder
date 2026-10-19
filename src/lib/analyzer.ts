@@ -3,6 +3,7 @@ import {
   detectCountry,
   stationIdCountry,
   isInUpperAustria,
+  isDeutschlandticketBorderStation,
   isRegionalProduct,
   isNationalProduct,
   isDeutschlandticketIC,
@@ -10,26 +11,28 @@ import {
 
 /**
  * Infer the country for a leg using (in priority order):
- *  1. GPS location bounding-box (most accurate)
- *  2. HAFAS EVA station ID prefix (80… = DE, 81… = AT)
+ *  1. HAFAS EVA station ID prefix (80… = DE, 81… = AT)
+ *  2. Border station checks
+ *  3. GPS location detection
  */
 function legCountry(
   leg: Journey["legs"][0]
 ): "DE" | "AT" | "unknown" {
-  const byLocation = (() => {
-    const o = detectCountry(leg.origin.location);
-    const d = detectCountry(leg.destination.location);
-    if (o !== "unknown" && o === d) return o;
-    if (o !== "unknown") return o;
-    if (d !== "unknown") return d;
-    return "unknown";
-  })();
+  const oId = stationIdCountry(leg.origin.id);
+  const dId = stationIdCountry(leg.destination.id);
 
-  if (byLocation !== "unknown") return byLocation;
+  if (oId !== "unknown" && oId === dId) return oId;
 
-  // Fallback: infer from EVA station ID prefix
-  const o = stationIdCountry(leg.origin.id);
-  const d = stationIdCountry(leg.destination.id);
+  // Cross-border to/from Deutschlandticket border station
+  if (oId === "DE" && isDeutschlandticketBorderStation(leg.destination.id)) return "DE";
+  if (dId === "DE" && isDeutschlandticketBorderStation(leg.origin.id)) return "DE";
+
+  if (oId !== "unknown") return oId;
+  if (dId !== "unknown") return dId;
+
+  // Fallback to location coordinates
+  const o = detectCountry(leg.origin.location);
+  const d = detectCountry(leg.destination.location);
   if (o !== "unknown" && o === d) return o;
   if (o !== "unknown") return o;
   if (d !== "unknown") return d;
@@ -55,15 +58,19 @@ function analyzeLeg(leg: Journey["legs"][0]): AnalyzedLeg {
   const isDTIC = country === "DE" && isDeutschlandticketIC(leg.line?.name);
   const regional = isDTIC || (!isNational && isRegionalProduct(product));
 
-  const originOOE = isInUpperAustria(leg.origin.location);
-  const destOOE = isInUpperAustria(leg.destination.location);
+  const originOOE = isInUpperAustria(leg.origin.location, leg.origin.id);
+  const destOOE = isInUpperAustria(leg.destination.location, leg.destination.id);
   const bothInOOE = originOOE && destOOE;
+
+  const isDEBorder =
+    (stationIdCountry(leg.origin.id) === "DE" && isDeutschlandticketBorderStation(leg.destination.id)) ||
+    (stationIdCountry(leg.destination.id) === "DE" && isDeutschlandticketBorderStation(leg.origin.id));
 
   let ticketUsed: TicketType = "full-price";
 
-  if (country === "DE" && regional) {
+  if ((country === "DE" || isDEBorder) && regional) {
     ticketUsed = "deutschlandticket";
-  } else if (country === "AT" && bothInOOE) {
+  } else if (bothInOOE) {
     ticketUsed = "klimaticket-ooe";
   } else if (
     country === "AT" ||
@@ -84,6 +91,25 @@ function analyzeLeg(leg: Journey["legs"][0]): AnalyzedLeg {
   };
 }
 
+/**
+ * Checks whether a journey satisfies:
+ * "Nur Deutschlandticket Verbindungen innerhalb Deutschlands (und in AT OÖ aber alles erlaubt)"
+ */
+export function isDeutschlandticketConnection(analyzedLegs: AnalyzedLeg[]): boolean {
+  const transitLegs = analyzedLegs.filter((al) => !al.leg.walking);
+  if (transitLegs.length === 0) return true;
+
+  return transitLegs.every((al) => {
+    // In Upper Austria, everything is allowed (Railjet, Westbahn, ICE, regional, etc.)
+    if (al.isInUpperAustria || al.ticketUsed === "klimaticket-ooe") {
+      return true;
+    }
+
+    // Inside Germany or German regional legs: must be valid with Deutschlandticket
+    return al.ticketUsed === "deutschlandticket";
+  });
+}
+
 function getDurationMinutes(journey: Journey): number {
   if (journey.legs.length === 0) return 0;
   const dep = new Date(journey.legs[0].departure).getTime();
@@ -99,6 +125,7 @@ export function analyzeJourney(journey: Journey): AnalyzedJourney {
     analyzedLegs,
     durationMinutes: getDurationMinutes(journey),
     transfers: journey.legs.filter((l) => !l.walking).length - 1,
+    isDeutschlandticketValid: isDeutschlandticketConnection(analyzedLegs),
   };
 }
 
