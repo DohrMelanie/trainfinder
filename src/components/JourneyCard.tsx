@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { AnalyzedJourney } from '@/lib/types';
+import { isSameStation } from '@/lib/geo';
 import TicketBadge from './TicketBadge';
 
 export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney }) {
@@ -22,6 +23,9 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
   };
 
   const transitLegs = analyzedLegs.filter((al) => !al.leg.walking);
+  const displayLegs = analyzedLegs.filter(
+    (al) => !(al.leg.walking && isSameStation(al.leg.origin, al.leg.destination))
+  );
   const dtLegsCount = transitLegs.filter((al) => al.ticketUsed === 'deutschlandticket').length;
   const isFullyDeutschlandticket = transitLegs.length > 0 && dtLegsCount === transitLegs.length;
   const hasDeutschlandticket = dtLegsCount > 0;
@@ -72,7 +76,7 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
 
       {!expanded && (
         <div className="legs-summary">
-          {analyzedLegs.map((al, idx) => (
+          {displayLegs.map((al, idx) => (
             <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
               {idx > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', margin: '0 4px' }}>
@@ -92,7 +96,7 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
 
       {expanded && (
         <div className="legs-details">
-          {analyzedLegs.map((al, idx) => {
+          {displayLegs.map((al, idx) => {
             const legDep = new Date(al.leg.departure);
             const legArr = new Date(al.leg.arrival);
             
@@ -100,7 +104,7 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
               <div key={idx} className="leg-item">
                 <div className="leg-timeline">
                   <div className="timeline-dot"></div>
-                  {idx < analyzedLegs.length - 1 && <div className="timeline-line"></div>}
+                  {idx < displayLegs.length - 1 && <div className="timeline-line"></div>}
                 </div>
                 
                 <div className="leg-content">

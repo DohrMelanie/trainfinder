@@ -1,4 +1,4 @@
-import { Location } from "./types";
+import { Location, Station } from "./types";
 
 const UPPER_AUSTRIA_BOUNDS = {
   minLat: 47.45,
@@ -146,4 +146,53 @@ export function isRegionalProduct(product?: string): boolean {
 
 export function isNationalProduct(product?: string): boolean {
   return product ? NATIONAL_PRODUCTS.has(product) : false;
+}
+
+/**
+ * Normalizes a station name by removing track / platform indicators (e.g. Gl.5-10),
+ * parentheticals like (tief), (hoch), (S-Bahn), and uniforming punctuation.
+ */
+export function normalizeStationName(name: string): string {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/\s*\(tief\)/gi, "")
+    .replace(/\s*\(hoch\)/gi, "")
+    .replace(/\s*gl(\.|eis)?\s*[\d\w\-]+/gi, "")
+    .replace(/\s*\(s-bahn\)/gi, "")
+    .replace(/\s*\(u-bahn\)/gi, "")
+    .replace(/[\(\)\/\-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Checks if two stations represent the same physical train station.
+ */
+export function isSameStation(a?: Station | null, b?: Station | null): boolean {
+  if (!a || !b) return false;
+
+  // Exact ID match
+  if (a.id && b.id && a.id === b.id) {
+    return true;
+  }
+
+  // Normalized name match
+  const normA = normalizeStationName(a.name);
+  const normB = normalizeStationName(b.name);
+  if (normA && normB && normA === normB) {
+    return true;
+  }
+
+  // Coordinate match fallback
+  if (
+    a.location &&
+    b.location &&
+    a.location.latitude === b.location.latitude &&
+    a.location.longitude === b.location.longitude
+  ) {
+    return true;
+  }
+
+  return false;
 }

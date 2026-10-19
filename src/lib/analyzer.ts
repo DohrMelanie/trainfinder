@@ -7,6 +7,7 @@ import {
   isRegionalProduct,
   isNationalProduct,
   isDeutschlandticketIC,
+  isSameStation,
 } from "./geo";
 
 /**
@@ -118,13 +119,17 @@ function getDurationMinutes(journey: Journey): number {
 }
 
 export function analyzeJourney(journey: Journey): AnalyzedJourney {
-  const analyzedLegs = journey.legs.map(analyzeLeg);
+  const filteredLegs = journey.legs.filter(
+    (l) => !(l.walking && isSameStation(l.origin, l.destination))
+  );
+  const cleanJourney = { ...journey, legs: filteredLegs };
+  const analyzedLegs = cleanJourney.legs.map(analyzeLeg);
 
   return {
-    journey,
+    journey: cleanJourney,
     analyzedLegs,
-    durationMinutes: getDurationMinutes(journey),
-    transfers: journey.legs.filter((l) => !l.walking).length - 1,
+    durationMinutes: getDurationMinutes(cleanJourney),
+    transfers: Math.max(0, cleanJourney.legs.filter((l) => !l.walking).length - 1),
     isDeutschlandticketValid: isDeutschlandticketConnection(analyzedLegs),
   };
 }

@@ -1,6 +1,7 @@
 import { createClient } from "hafas-client";
 import { profile as oebbProfile } from "hafas-client/p/oebb/index.js";
 import { Station, Journey, StationSuggestion } from "./types";
+import { isSameStation } from "./geo";
 
 const oebbClient = createClient(oebbProfile, "trainfinder/1.0");
 
@@ -88,6 +89,7 @@ export async function searchJourneys(
             direction: leg.direction ?? undefined,
             walking: leg.walking === true,
           }))
+          .filter((leg) => !(leg.walking && isSameStation(leg.origin, leg.destination)))
         : [],
     }));
   } catch (err) {
