@@ -6,7 +6,7 @@ import TicketBadge from './TicketBadge';
 
 export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney }) {
   const [expanded, setExpanded] = useState(false);
-  const { journey, analyzedLegs, totalPrice, savedAmount, durationMinutes, transfers } = analyzed;
+  const { journey, analyzedLegs, durationMinutes, transfers } = analyzed;
 
   const departure = new Date(journey.legs[0].departure);
   const arrival = new Date(journey.legs[journey.legs.length - 1].arrival);
@@ -21,7 +21,10 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
     return `${h}h ${m}m`;
   };
 
-  const originalPrice = totalPrice + savedAmount;
+  const transitLegs = analyzedLegs.filter((al) => !al.leg.walking);
+  const dtLegsCount = transitLegs.filter((al) => al.ticketUsed === 'deutschlandticket').length;
+  const isFullyDeutschlandticket = transitLegs.length > 0 && dtLegsCount === transitLegs.length;
+  const hasDeutschlandticket = dtLegsCount > 0;
 
   return (
     <div className="glass-card journey-card">
@@ -40,14 +43,19 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
           </div>
         </div>
 
-        <div className="journey-price">
-          <div className="price-current">
-            €{totalPrice.toFixed(2)}
-          </div>
-          {savedAmount > 0 && (
-            <div className="price-original">
-              €{originalPrice.toFixed(2)}
-            </div>
+        <div className="journey-ticket-status">
+          {isFullyDeutschlandticket ? (
+            <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+              ✓ 100% D-Ticket
+            </span>
+          ) : hasDeutschlandticket ? (
+            <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+              Partially D-Ticket ({dtLegsCount}/{transitLegs.length})
+            </span>
+          ) : (
+            <span className="badge badge-full-price" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+              No D-Ticket
+            </span>
           )}
         </div>
       </div>
@@ -102,12 +110,6 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
                     )}
                     <TicketBadge type={al.ticketUsed} />
                   </div>
-                  
-                  {al.estimatedPrice > 0 && (
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                      Leg cost: €{al.estimatedPrice.toFixed(2)}
-                    </div>
-                  )}
                 </div>
               </div>
             );

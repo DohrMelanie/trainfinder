@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { searchJourneys } from '../../../lib/hafas';
-import { analyzeJourney, sortByPrice } from '../../../lib/analyzer';
+import { analyzeJourney, sortByDeparture } from '../../../lib/analyzer';
 import { Journey } from '../../../lib/types';
 
 export async function GET(request: Request) {
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 
     const uniqueJourneys = Array.from(journeyMap.values());
     const analyzedJourneys = uniqueJourneys.map(analyzeJourney);
-    const sortedJourneys = sortByPrice(analyzedJourneys);
+    const sortedJourneys = sortByDeparture(analyzedJourneys);
 
     return NextResponse.json(sortedJourneys);
   } catch (error) {

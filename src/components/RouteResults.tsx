@@ -10,16 +10,18 @@ export default function RouteResults({ journeys }: { journeys: AnalyzedJourney[]
     );
   }
 
-  // Calculate max savings
-  const maxSavings = Math.max(...journeys.map(j => j.savedAmount));
+  // Count routes that have Deutschlandticket segments
+  const dtEligibleCount = journeys.filter(j =>
+    j.analyzedLegs.some(al => al.ticketUsed === 'deutschlandticket')
+  ).length;
 
   return (
     <div>
       <div className="results-header">
         <h2>{journeys.length} {journeys.length === 1 ? 'Route' : 'Routes'} Found</h2>
-        {maxSavings > 0 && (
-          <div className="savings-badge">
-            Save up to €{maxSavings.toFixed(2)} with passes
+        {dtEligibleCount > 0 && (
+          <div className="badge badge-deutschlandticket" style={{ fontSize: '0.875rem', padding: '6px 14px' }}>
+            {dtEligibleCount} of {journeys.length} {journeys.length === 1 ? 'route includes' : 'routes include'} D-Ticket
           </div>
         )}
       </div>

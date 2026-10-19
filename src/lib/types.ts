@@ -26,15 +26,9 @@ export interface Leg {
   walking?: boolean;
 }
 
-export interface Price {
-  amount: number;
-  currency: string;
-}
-
 export interface Journey {
   id: string;
   legs: Leg[];
-  price?: Price;
 }
 
 export type TicketType =
@@ -50,14 +44,11 @@ export interface AnalyzedLeg {
   isRegional: boolean;
   isInUpperAustria: boolean;
   ticketUsed: TicketType;
-  estimatedPrice: number;
 }
 
 export interface AnalyzedJourney {
   journey: Journey;
   analyzedLegs: AnalyzedLeg[];
-  totalPrice: number;
-  savedAmount: number;
   durationMinutes: number;
   transfers: number;
 }

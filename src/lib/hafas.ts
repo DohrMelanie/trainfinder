@@ -81,12 +81,6 @@ export async function searchJourneys(
             walking: leg.walking === true,
           }))
         : [],
-      price: j.price
-        ? {
-            amount: j.price.amount as number,
-            currency: (j.price.currency as string) ?? "EUR",
-          }
-        : undefined,
     }));
   } catch (err) {
     console.warn(`[hafas] oebb profile failed:`, (err as Error).message);

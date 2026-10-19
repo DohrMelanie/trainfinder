@@ -11,19 +11,19 @@ export default function TicketBadge({ type, compact = false }: TicketBadgeProps)
 
   switch (type) {
     case 'deutschlandticket':
-      label = compact ? 'D-Ticket' : 'D-Ticket €0';
+      label = compact ? 'D-Ticket' : 'Deutschlandticket';
       className += 'badge-deutschlandticket';
       break;
     case 'klimaticket-ooe':
-      label = compact ? 'Klima OÖ' : 'Klimaticket OÖ €0';
+      label = compact ? 'Klima OÖ' : 'Klimaticket OÖ';
       className += 'badge-klimaticket-ooe';
       break;
     case 'vorteilscard':
-      label = compact ? 'VC (-50%)' : 'Vorteilscard -50%';
+      label = compact ? 'Vorteilscard' : 'ÖBB Vorteilscard';
       className += 'badge-vorteilscard';
       break;
     case 'full-price':
-      label = compact ? 'Full Price' : 'Full Price';
+      label = compact ? 'Regular Ticket' : 'Regular Ticket';
       className += 'badge-full-price';
       break;
     case 'walking':
