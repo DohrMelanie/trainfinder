@@ -8,6 +8,7 @@ import {
   isNationalProduct,
   isDeutschlandticketIC,
   isSameStation,
+  isUpperAustriaToSalzburg,
 } from "./geo";
 
 /**
@@ -59,20 +60,25 @@ function analyzeLeg(leg: Journey["legs"][0]): AnalyzedLeg {
   const isDTIC = country === "DE" && isDeutschlandticketIC(leg.line?.name);
   const regional = isDTIC || (!isNational && isRegionalProduct(product));
 
-  const originOOE = isInUpperAustria(leg.origin.location, leg.origin.id);
-  const destOOE = isInUpperAustria(leg.destination.location, leg.destination.id);
+  const originOOE = isInUpperAustria(leg.origin.location, leg.origin.id, leg.origin.name);
+  const destOOE = isInUpperAustria(leg.destination.location, leg.destination.id, leg.destination.name);
   const bothInOOE = originOOE && destOOE;
+  const isOOEToSalzburg = isUpperAustriaToSalzburg(leg.origin, leg.destination);
 
   const isDEBorder =
     (stationIdCountry(leg.origin.id) === "DE" && isDeutschlandticketBorderStation(leg.destination.id)) ||
     (stationIdCountry(leg.destination.id) === "DE" && isDeutschlandticketBorderStation(leg.origin.id));
 
   let ticketUsed: TicketType = "full-price";
+  let ticketNote: string | undefined;
 
   if ((country === "DE" || isDEBorder) && regional) {
     ticketUsed = "deutschlandticket";
   } else if (bothInOOE) {
     ticketUsed = "klimaticket-ooe";
+  } else if (isOOEToSalzburg) {
+    ticketUsed = "klimaticket-ooe-partial";
+    ticketNote = "Klimaticket OÖ gilt nur bis zur Landesgrenze (Zusatzticket nach Salzburg nötig)";
   } else if (
     country === "AT" ||
     detectCountry(leg.origin.location) === "AT" ||
@@ -89,6 +95,7 @@ function analyzeLeg(leg: Journey["legs"][0]): AnalyzedLeg {
     isRegional: regional,
     isInUpperAustria: bothInOOE,
     ticketUsed,
+    ticketNote,
   };
 }
 
@@ -102,7 +109,11 @@ export function isDeutschlandticketConnection(analyzedLegs: AnalyzedLeg[]): bool
 
   return transitLegs.every((al) => {
     // In Upper Austria, everything is allowed (Railjet, Westbahn, ICE, regional, etc.)
-    if (al.isInUpperAustria || al.ticketUsed === "klimaticket-ooe") {
+    if (
+      al.isInUpperAustria ||
+      al.ticketUsed === "klimaticket-ooe" ||
+      al.ticketUsed === "klimaticket-ooe-partial"
+    ) {
       return true;
     }
 

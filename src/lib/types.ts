@@ -34,6 +34,7 @@ export interface Journey {
 export type TicketType =
   | "deutschlandticket"
   | "klimaticket-ooe"
+  | "klimaticket-ooe-partial"
   | "vorteilscard"
   | "full-price"
   | "walking";
@@ -44,6 +45,7 @@ export interface AnalyzedLeg {
   isRegional: boolean;
   isInUpperAustria: boolean;
   ticketUsed: TicketType;
+  ticketNote?: string;
 }
 
 export interface AnalyzedJourney {

@@ -18,6 +18,10 @@ export default function TicketBadge({ type, compact = false }: TicketBadgeProps)
       label = compact ? 'Klima OÖ' : 'Klimaticket OÖ';
       className += 'badge-klimaticket-ooe';
       break;
+    case 'klimaticket-ooe-partial':
+      label = compact ? 'Klima OÖ (teilw.)' : 'Klimaticket OÖ (teilw.)';
+      className += 'badge-klimaticket-ooe-partial';
+      break;
     case 'vorteilscard':
       label = compact ? 'Vorteilscard' : 'ÖBB Vorteilscard';
       className += 'badge-vorteilscard';

@@ -30,15 +30,36 @@ export function detectCountry(location?: Location): "DE" | "AT" | "unknown" {
 }
 
 /**
- * Checks if a location or station is within Upper Austria (Oberösterreich),
- * or directly serves as an integrated boundary hub to Upper Austria (Passau Hbf, Salzburg Hbf).
+ * Checks if a station is in Salzburg city/state.
  */
-export function isInUpperAustria(location?: Location, stationId?: string): boolean {
+export function isSalzburgStation(stationId?: string, stationName?: string): boolean {
+  if (stationId) {
+    const digits = stationId.replace(/\D/g, "");
+    if (digits === "8100002") return true;
+  }
+  if (stationName) {
+    if (/^Salzburg(\s|[\/\-]|$)/i.test(stationName.trim())) return true;
+  }
+  return false;
+}
+
+/**
+ * Checks if a location or station is within Upper Austria (Oberösterreich),
+ * or directly serves as an integrated boundary hub to Upper Austria (Passau Hbf).
+ * Note: Salzburg Hbf is in the federal state of Salzburg and is excluded.
+ */
+export function isInUpperAustria(
+  location?: Location,
+  stationId?: string,
+  stationName?: string
+): boolean {
+  if (isSalzburgStation(stationId, stationName)) {
+    return false;
+  }
   if (stationId) {
     const digits = stationId.replace(/\D/g, "");
     // Passau Hbf (8000298) is integrated into the Upper Austria transit network (OÖVV)
-    // Salzburg Hbf (8100002) is on the boundary directly connecting into Upper Austria
-    if (digits === "8000298" || digits === "8100002") return true;
+    if (digits === "8000298") return true;
   }
   if (!location) return false;
   const { latitude: lat, longitude: lng } = location;
@@ -48,6 +69,24 @@ export function isInUpperAustria(location?: Location, stationId?: string): boole
     lng >= UPPER_AUSTRIA_BOUNDS.minLng &&
     lng <= UPPER_AUSTRIA_BOUNDS.maxLng
   );
+}
+
+/**
+ * Returns true if a connection directly links Upper Austria and Salzburg
+ * (e.g., Linz -> Salzburg, Wels -> Salzburg), where Klimaticket OÖ
+ * is only partially valid (valid up to the provincial border).
+ */
+export function isUpperAustriaToSalzburg(
+  origin: Station,
+  destination: Station
+): boolean {
+  const oSalzburg = isSalzburgStation(origin.id, origin.name);
+  const dSalzburg = isSalzburgStation(destination.id, destination.name);
+
+  const oOOE = !oSalzburg && isInUpperAustria(origin.location, origin.id, origin.name);
+  const dOOE = !dSalzburg && isInUpperAustria(destination.location, destination.id, destination.name);
+
+  return (oOOE && dSalzburg) || (oSalzburg && dOOE);
 }
 
 /**

@@ -29,6 +29,7 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
   const dtLegsCount = transitLegs.filter((al) => al.ticketUsed === 'deutschlandticket').length;
   const isFullyDeutschlandticket = transitLegs.length > 0 && dtLegsCount === transitLegs.length;
   const hasDeutschlandticket = dtLegsCount > 0;
+  const hasPartialKlimaticket = transitLegs.some((al) => al.ticketUsed === 'klimaticket-ooe-partial');
 
   return (
     <div className="glass-card journey-card">
@@ -54,8 +55,18 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
                 ✓ 100% D-Ticket
               </span>
             ) : hasDeutschlandticket ? (
-              <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
-                ✓ D-Ticket (DE) + OÖ
+              hasPartialKlimaticket ? (
+                <span className="badge badge-klimaticket-ooe-partial" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                  ✓ D-Ticket (DE) + OÖ (teilw.)
+                </span>
+              ) : (
+                <span className="badge badge-deutschlandticket" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                  ✓ D-Ticket (DE) + OÖ
+                </span>
+              )
+            ) : hasPartialKlimaticket ? (
+              <span className="badge badge-klimaticket-ooe-partial" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+                Klima OÖ (teilw. gültig)
               </span>
             ) : (
               <span className="badge badge-klimaticket-ooe" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
@@ -116,7 +127,7 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
                     {al.leg.origin.name} → {al.leg.destination.name}
                   </div>
                   
-                  <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     {al.leg.line && (
                       <span className="leg-train">
                         {al.leg.line.name}
@@ -124,6 +135,12 @@ export default function JourneyCard({ analyzed }: { analyzed: AnalyzedJourney })
                     )}
                     <TicketBadge type={al.ticketUsed} />
                   </div>
+                  {al.ticketNote && (
+                    <div style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span>⚠️</span>
+                      <span>{al.ticketNote}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );
